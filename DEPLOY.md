@@ -14,7 +14,14 @@
 - 仓库名建议：`face-shape-detector`
 - 可见性：public 或 private 都行（Cloudflare Pages 两种都支持）
 
-然后在本地执行（把 `<你的用户名>` 换成你的 GitHub 用户名）：
+remote 已经配好了（指向 `https://github.com/edrfhhokmjun-cmd/face-shape-detector.git`）。
+**如果你的 GitHub 用户名不是 `edrfhhokmjun-cmd`，先改掉：**
+
+```powershell
+& $git remote set-url origin https://github.com/<你的用户名>/face-shape-detector.git
+```
+
+然后在**你自己的终端**里推送：
 
 ```powershell
 cd "C:\Users\ikm\Desktop\DSH Desktop\face-shape-detector"
@@ -22,22 +29,58 @@ cd "C:\Users\ikm\Desktop\DSH Desktop\face-shape-detector"
 # 本机没有全局 git，用 ganhuo-ai 自带的那份
 $git = "C:\Users\ikm\AppData\Local\Programs\ganhuo-ai\resources\runtime\win32-x64\PortableGit\cmd\git.exe"
 
-# 关联远程并推送
-& $git remote add origin https://github.com/<你的用户名>/face-shape-detector.git
 & $git push -u origin main
 ```
 
-推送时会要求登录。推荐用 **Personal Access Token** 当密码（GitHub 已不支持账号密码）：
-GitHub → Settings → Developer settings → Personal access tokens → Fine-grained token，
-权限只需 `Contents: Read and write`（Cloudflare 那边也建议用只读 token，两者分开）。
+### 这台机器上的两个坑（已修，但要知道原因）
 
-**推送前可以自查一遍**（确认没把照片或依赖传上去）：
+**① Windows Schannel 是坏的，git 必须改用自带的 OpenSSL。**
+症状：任何 HTTPS 操作都报
+`schannel: AcquireCredentialsHandle failed: SEC_E_NO_CREDENTIALS`。
+（这也是本机 `curl` 和 .NET 走 HTTPS 会失败的原因；Node 不受影响，因为它用自己的 OpenSSL。）
+
+已经在本仓库的 `.git/config` 里设好了，所以上面那条 push 直接可用：
+
+```
+http.sslBackend = openssl
+http.sslCAInfo  = <PortableGit>\mingw64\etc\ssl\certs\ca-bundle.crt
+```
+
+想让**所有**仓库都生效（推荐，一劳永逸），在你自己终端里加 `--global` 跑一遍：
+
+```powershell
+& $git config --global http.sslBackend openssl
+& $git config --global http.sslCAInfo "C:\Users\ikm\AppData\Local\Programs\ganhuo-ai\resources\runtime\win32-x64\PortableGit\mingw64\etc\ssl\certs\ca-bundle.crt"
+```
+
+**② 凭据助手要用原生 exe，不能用 shell 脚本版。**
+PortableGit 默认的 `credential.helper=helper-selector` 是个 shell 脚本，在某些受限环境下
+会报 `couldn't create signal pipe` / `failed to execute prompt script`。
+已改成直接调用 `git-credential-manager.exe`（**推送时会弹浏览器让你登录 GitHub**，
+不需要手搓 token）。若想全局生效：
+
+```powershell
+& $git config --global credential.helper "C:\Users\ikm\AppData\Local\Programs\ganhuo-ai\resources\runtime\win32-x64\PortableGit\mingw64\bin\git-credential-manager.exe"
+```
+
+### 如果浏览器登录不方便，改用 Personal Access Token
+
+GitHub → Settings → Developer settings → **Personal access tokens → Fine-grained tokens**，
+权限只需 `Contents: Read and write`。推送时把 token 当密码填：
+
+```powershell
+& $git push -u origin "https://<你的用户名>:<token>@github.com/<你的用户名>/face-shape-detector.git" main
+```
+
+⚠️ 这种写法会把 token 留在命令历史里。用完记得在 GitHub 上吊销，或改用 GCM。
+
+### 推送前自查（确认没把照片或依赖传上去）
 
 ```powershell
 & $git ls-tree -r --name-only HEAD | Select-String '\.jpg$|node_modules|labels\.json$'
 # 应当没有任何输出
 & $git ls-tree -r --name-only HEAD | Measure-Object | Select-Object -ExpandProperty Count
-# 应当是 50
+# 应当是 51
 ```
 
 ---
