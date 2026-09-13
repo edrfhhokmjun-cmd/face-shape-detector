@@ -12,8 +12,12 @@
  *
  * 注意：sitemap 和 canonical 都依赖这个值，所以它必须是**对外可访问的正式地址**，
  * 不要填带 hash 的预览部署地址。
+ *
+ * ⚠️ 默认值必须与 Cloudflare 上显示的实际生产地址一致。
+ *    Cloudflare 在项目名被占用时会加后缀 —— 本项目实际是
+ *    `face-shape-detector-enf.pages.dev`（注意 `-enf`），不是 `face-shape-detector.pages.dev`。
  */
-export const SITE_URL = process.env.SITE_URL ?? 'https://face-shape-detector.pages.dev';
+export const SITE_URL = process.env.SITE_URL ?? 'https://face-shape-detector-enf.pages.dev';
 
 /** 还是占位域名吗？是的话 canonical / og:url 会自动停止输出（见 BaseLayout.astro） */
 export const IS_PLACEHOLDER = SITE_URL.includes('example.com');
