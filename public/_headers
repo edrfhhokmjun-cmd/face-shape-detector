@@ -1,6 +1,10 @@
 # Consumed by Cloudflare Pages / Netlify (this file is NOT served to visitors).
-# The wasm and model filenames never change, so they can be cached forever —
-# that is what makes the first photo analysis fast on repeat visits.
+# The wasm and model filenames never change, so they can be cached forever - which is what
+# makes the first photo analysis fast on repeat visits.
+#
+# NOTE: this file is pure ASCII on purpose. It is parsed by infrastructure, and a parser that
+# mishandles multi-byte characters in a comment could silently drop the headers below.
+# Keep it ASCII-only, same as the generated robots.txt.
 
 /mediapipe/*
   Cache-Control: public, max-age=31536000, immutable
@@ -9,3 +13,18 @@
 /models/*
   Cache-Control: public, max-age=31536000, immutable
   Cross-Origin-Resource-Policy: cross-origin
+
+# RFC 8288 Link headers for agent discovery.
+# Deliberately only relations this site can actually honour:
+#   service-doc     -> the methodology / limitations page (our closest thing to API docs)
+#   privacy-policy  -> the registered relation for exactly that
+#   help            -> where to report a wrong result
+#
+# We deliberately do NOT advertise api-catalog / service-desc / status, because this site has no
+# API. Publishing discovery metadata for endpoints that do not exist is worse for an agent than
+# publishing nothing: it would follow the links and fail. See AGENT-READINESS.md.
+#
+# All values sit on ONE line (a comma-separated list of link-values): repeated same-name headers
+# are not guaranteed to be preserved by every static host.
+/*
+  Link: </how-it-works/>; rel="service-doc", </privacy/>; rel="privacy-policy", </contact/>; rel="help"
