@@ -166,6 +166,7 @@ npm run dev
 .\dev.ps1 run build                # 构建（prebuild 会自动跑上线自检）
 .\dev.ps1 run preview -- --port 4322   # 预览构建产物（审查用这个，不是 dev server）
 .\dev.ps1 run preflight:strict     # 上线自检，有阻断项则退出码 1
+.\dev.ps1 run verify:live          # ★ 验证线上站点（35 项断言：路由/响应头/缓存头/模型字节数）
 
 # 评估与校准（需要 Playwright）
 .\dev.ps1 run batch -- --dir regression      # 跑标注集，输出 results.csv + 指标表
@@ -174,6 +175,9 @@ npm run dev
 .\dev.ps1 run import:photos -- --from "<目录>" --prefix me --person me --shape diamond
 .\dev.ps1 run debug:dump -- <图片>            # 把 /debug 的数据打成文本（不用截图）
 ```
+
+> `_headers` 这类静态配置文件**在本地 preview 里不生效**，只能在真实托管上验证 ——
+> 所以改动响应头/缓存策略后，务必跑一次 `verify:live`。
 
 ---
 

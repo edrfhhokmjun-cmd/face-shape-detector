@@ -67,12 +67,15 @@ Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 1. 重新扫描：`https://isitagentready.com/`，输入 `https://face-shape-detector-enf.pages.dev/`
 2. 本地验证产物：`npm run build` 后检查 `dist/robots.txt` 与 `dist/_headers`
-3. 线上验证响应头（浏览器 DevTools → Network → 首页 → Response Headers，找 `link:`）：
+3. **线上验证响应头与全部断言**（35 项）：
 
 ```powershell
-# Node 的 fetch 不受本机 Schannel 故障影响
-node -e "fetch('https://face-shape-detector-enf.pages.dev/').then(r=>console.log(r.headers.get('link')))"
+npm run verify:live
 ```
+
+`scripts/verify-live.mjs` 会断言 Link 头确实发出、Content-Signal 在位、
+**且没有谎称存在 API**（`Link 未谎称有 API` 这一条是刻意加的，
+防止以后有人为了刷分把 `api-catalog` 加进去）。
 
 **预期分数仍然不高** —— 这是刻意的。分数低的原因写在上面的表里，不是待修项。
 
