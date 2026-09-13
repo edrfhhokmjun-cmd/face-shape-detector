@@ -153,6 +153,9 @@ yaw/pitch 用鼻尖偏移和上下脸比例做代理量。刻意避开 `facialTr
 
 ## 四、上线步骤
 
+> **完整的 GitHub → Cloudflare Pages 流程见 [`DEPLOY.md`](./DEPLOY.md)**
+> （含必须设置的两个环境变量，其中 `NODE_VERSION` 不设会直接构建失败）。
+
 **先跑自检** —— 它会把所有占位符/缺失项列出来，不用靠记忆：
 
 ```powershell
