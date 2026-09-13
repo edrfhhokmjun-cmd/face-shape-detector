@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { BUILD_ENV, COMMIT_SHA } from '../lib/build-info.mjs';
 
 interface Props {
   title: string;
@@ -30,6 +31,15 @@ const ogImage = hasRealDomain ? new URL('/og.png', siteUrl).href : null;
     {canonical && <link rel="canonical" href={canonical} />}
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="generator" content={Astro.generator} />
+
+    <!--
+      构建身份，供 scripts/verify-live.mjs 检测「部署没发生」这种静默失败：
+      Cloudflare 的构建可能失败而线上继续服务旧版本。verify:live 把这个值和
+      本地 origin/main 比对，不一致就报「部署是旧的」。
+      对访客无副作用，也只是 7 个字符。
+    -->
+    <meta name="build-commit" content={COMMIT_SHA} />
+    <meta name="build-env" content={BUILD_ENV} />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/favicon.svg" />

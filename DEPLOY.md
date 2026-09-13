@@ -120,12 +120,43 @@ Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → **
 
 ## 3. 部署后核对
 
+一条命令代替手工清单：
+
+```powershell
+npm run verify:live     # 线上 38 项断言
+```
+
+它其中的第一组就是**部署新鲜度**，这是最容易被忽略的一类问题（见下）。
+
+手工清单：
+
 - [ ] 打开 `https://<项目名>.pages.dev`，页面正常
 - [ ] `view-source` 里 `<link rel="canonical">` 是 `https://<项目名>.pages.dev/`
 - [ ] `/sitemap-index.xml` 打开，里面域名正确
 - [ ] `/robots.txt` 打开，`Sitemap:` 行域名正确（这个文件现在是**生成**的，不会和配置不一致）
 - [ ] 传一张照片能出结果；首屏不应加载 131 KB 的 vision bundle（选图后才加载）
 - [ ] `/<项目名>.pages.dev/debug/` 返回 **404**（开发页已归档，不进构建）
+
+### ⚠️ 构建会静默失败 —— 线上继续服务旧版本
+
+这是本项目的真实经验：**推送成功、GitHub 上有提交，但 Cloudflare 的构建挂掉了**，
+而线上一切正常，只是内容还是旧的。**没有任何报错。** 如果那次改的是 bug 修复，
+它会看起来像「已经修好了」—— 这是最难查的一类问题。
+
+**怎么发现**：`npm run verify:live` 会比对
+线上 `<meta name="build-commit">` 与本地 `origin/main`。
+不一致就是「部署没发生」。每个页面都带这个标记（由 `src/lib/build-info.mjs` 生成，
+生产环境取 Cloudflare 注入的 `CF_PAGES_COMMIT_SHA`）。
+
+**怎么处理**：
+
+1. Cloudflare Dashboard → Workers & Pages → 该项目 → **Deployments**
+2. 看最新一条状态：`No deployment available` / 红色 ⚠️ = 构建失败
+3. **直接点 Retry deployment 通常就好** —— 这类失败多为瞬时（构建基础设施抖动），
+   而不是代码问题。判断依据：同一个提交在本地 `npm run build` 能过。
+4. 如果日志里有真实报错（比如 Node 版本），那才是要修的东西
+
+**不要**用「刷新页面看起来正常」来判断部署成功 —— 旧版本本来就能正常服务。
 
 ---
 

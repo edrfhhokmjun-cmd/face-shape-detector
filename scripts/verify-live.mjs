@@ -11,6 +11,7 @@
  * OpenSSL，所以不受影响）。
  */
 import { SITE_URL } from '../site.config.mjs';
+import { LOCAL_HEAD, LOCAL_ORIGIN_MAIN } from '../src/lib/build-info.mjs';
 
 const base = (process.argv[2] ?? SITE_URL).replace(/\/$/, '');
 const EXPECTED_MODEL_BYTES = 3758596;
@@ -18,6 +19,37 @@ const EXPECTED_MODEL_BYTES = 3758596;
 const results = [];
 const record = (name, ok, detail = '') => results.push({ name, ok, detail });
 const get = (path) => fetch(`${base}${path}`, { redirect: 'follow', cache: 'no-store' });
+
+// ── 0. 部署是否新鲜（最重要的一条：构建可能静默失败，旧版本继续服务）──────
+{
+  const html = await (await get('/')).text();
+  const deployed = html.match(/<meta name="build-commit" content="([^"]+)"/)?.[1] ?? null;
+  const buildEnv = html.match(/<meta name="build-env" content="([^"]+)"/)?.[1] ?? null;
+  const expected = LOCAL_ORIGIN_MAIN ?? LOCAL_HEAD;
+
+  record('页面带构建标记', Boolean(deployed), deployed ?? '(缺失)');
+  record('构建环境是生产', buildEnv?.startsWith('cloudflare-pages') ?? false, buildEnv ?? '(缺失)');
+
+  // 线上 → 期望与 origin/main（已推送的最新提交）一致。
+  // 用 origin/main 而不是 HEAD：本地有未推送提交时，HEAD 领先是正常的，不该误报。
+  if (deployed && expected) {
+    record(
+      '部署已是最新提交',
+      deployed === expected,
+      deployed === expected
+        ? `${deployed} = origin/main`
+        : `线上是 ${deployed}，origin/main 是 ${expected} —— 部署是旧的（构建可能失败，去 Deployments 看状态）`,
+    );
+  }
+
+  if (LOCAL_HEAD && LOCAL_ORIGIN_MAIN && LOCAL_HEAD !== LOCAL_ORIGIN_MAIN) {
+    record(
+      '本地有未推送提交（提示，不算失败）',
+      true,
+      `HEAD ${LOCAL_HEAD} 领先 origin/main ${LOCAL_ORIGIN_MAIN}`,
+    );
+  }
+}
 
 // ── 1. 页面路由 ────────────────────────────────────────────────────────────
 const ROUTES = [
