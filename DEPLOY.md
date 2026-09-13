@@ -77,10 +77,11 @@ GitHub → Settings → Developer settings → **Personal access tokens → Fine
 ### 推送前自查（确认没把照片或依赖传上去）
 
 ```powershell
-& $git ls-tree -r --name-only HEAD | Select-String '\.jpg$|node_modules|labels\.json$'
-# 应当没有任何输出
+& $git ls-tree -r --name-only HEAD | Select-String '\.jpg$|\.jpeg$|node_modules|labels\.json$'
+# 应当没有任何输出 —— 这才是要盯的
+
 & $git ls-tree -r --name-only HEAD | Measure-Object | Select-Object -ExpandProperty Count
-# 应当是 51
+# 会随文档增加而变化，别把数字写死在文档里（这里曾经写死过，然后就过期了）
 ```
 
 ---
