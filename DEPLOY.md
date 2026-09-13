@@ -104,8 +104,18 @@ Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → **
 
 | 变量 | 值 | 为什么必须 |
 |---|---|---|
-| `NODE_VERSION` | `22.12.0` | **Astro 7 要求 Node ≥ 22.12**。Cloudflare 默认版本可能更低，版本不够会直接构建失败。这是最容易踩的坑。 |
+| `NODE_VERSION` | **`22`** | 见下 |
 | `SITE_URL` | `https://<你的项目名>.pages.dev` | 决定 canonical / sitemap / og:url。**不设也能跑**（`site.config.mjs` 里有同名默认值），但显式设上更清楚。 |
+
+### 为什么 `NODE_VERSION` 填 `22` 而不是钉死一个小版本
+
+- **下限**：Astro 7 要求 Node `>=22.12.0`。Cloudflare 默认版本可能更低，不够会**直接构建失败**
+  —— 这是这一步最容易踩的坑（`astro` 的 `engines.node` 已核实为 `>=22.12.0`）。
+- **但不要钉死 `22.12.0`**：本项目实测构建日志里出现过
+  `npm warn EBADENGINE: undici@8.10.2 requires node >=22.19.0, current v22.12.0`，
+  而且 22.12.0 已进入 LTS Maintenance（nearing end of life）。
+  这类警告以后可能变成错误。
+- 填 `22` 会自动取 22.x 最新版，既满足下限又不落在维护末期。
 
 > 项目名如果不是 `face-shape-detector`，`SITE_URL` 就必须设 —— 否则 canonical 会指向一个不存在的地址。
 
