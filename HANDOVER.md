@@ -10,26 +10,47 @@
 ## 0. 一句话
 
 **浏览器内完成测量的脸型工具**（照片不上传、不存储），配套 6 个脸型指南、方法页、隐私页。
-纯静态站，无服务端代码。**代码基本完成，正处于"即将首次上线"的状态。**
+纯静态站，无服务端代码。
+
+**✅ 已上线：https://face-shape-detector-enf.pages.dev**
+（Cloudflare Pages 连接 GitHub 仓库 `edrfhhokmjun-cmd/face-shape-detector`，**push 即自动部署**）
 
 技术栈：Astro 7（静态）+ MediaPipe Face Landmarker（本地 wasm，478 landmarks）+ TypeScript。
 分类是**规则驱动**（不是训练出来的模型），阈值来自 200 张真实人脸的比例分布。
 
 ---
 
-## 1. 当前状态：上线前最后一公里
+## 1. 当前状态：已上线，进入观察期
 
-**已完成**：功能、内容、加固、评估、审查修复、git 初始化 + 4 个提交。
+**上线时逐项验证通过**（HTTP 层 31/31 + 线上真机端到端）：
 
-**只剩三步，且都需要人类操作**：
+| 项 | 结果 |
+|---|---|
+| 12 个页面 | 全部 200 |
+| `/debug/` | 404（开发页已归档，未进构建） |
+| canonical / og:image / robots / sitemap | 全部指向 `https://face-shape-detector-enf.pages.dev` |
+| 产物中文残留 | 零 |
+| 模型文件 | 线上 **3,758,596 字节** = 本地，二进制完整 |
+| `public/_headers` 缓存头 | ✅ 生效（`public, max-age=31536000, immutable`） |
+| **线上真机跑分析** | ✅ `heart 93%`，首次 5.6 秒（含下载 3.6 MB 模型），后续 42 毫秒 |
 
-| # | 待办 | 谁做 | 说明 |
-|---|---|---|---|
-| 1 | 在 GitHub 建**空仓库** `face-shape-detector` | 人类 | 别勾 README/.gitignore/license |
-| 2 | `git push -u origin main` | 人类 | remote 已配好；见 `DEPLOY.md` 第 1 节 |
-| 3 | Cloudflare Pages 连接仓库 | 人类 | **必须设 `NODE_VERSION=22.12.0`**，否则 Astro 7 构建失败 |
+复现这个验证：`node .tools/verify-live.mjs`（HTTP 层）、
+`node scripts/batch-analyze.mjs --dir .smoke --url https://face-shape-detector-enf.pages.dev/`（真机）。
 
-自检命令（会列出所有阻断项）：`.\dev.ps1 run preflight:strict` —— **当前应为 ✅ 全通过**。
+**剩下的动作**：
+
+| # | 待办 | 谁做 |
+|---|---|---|
+| 1 | 推掉本地待推送的提交（`SITE_URL` 默认值改为 `-enf` 版本） | 人类 —— 沙箱里 git 认证走不通 |
+| 2 | 可选：把 sitemap 提交到 Google Search Console | 人类 |
+| 3 | 收集真实用户反馈，再定下一步优先级 | 人类 |
+
+> ⚠️ 项目名曾被占用，Cloudflare 加了后缀：实际地址是
+> `face-shape-detector-**enf**.pages.dev`，**不是** `face-shape-detector.pages.dev`。
+> `site.config.mjs` 的默认值与 Cloudflare 的 `SITE_URL` 环境变量都已按此设置。
+> 换真域名时只需改 Cloudflare 那一个环境变量，不用动代码。
+
+自检命令（本地构建前可随时跑，会列出所有上线阻断项）：`.\dev.ps1 run preflight:strict`
 
 ---
 
