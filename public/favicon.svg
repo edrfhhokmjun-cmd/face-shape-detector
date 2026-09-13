@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Face Shape Detector">
+  <rect width="64" height="64" rx="14" fill="#0b0f14"/>
+  <!-- 菱形脸轮廓：这个工具最容易判错、也最需要我们讲清楚的那一类 -->
+  <path d="M32 8 L48 27 L32 56 L16 27 Z" fill="none" stroke="#38bdf8" stroke-width="4.5" stroke-linejoin="round"/>
+  <!-- 颧宽测量线 -->
+  <line x1="14" y1="27" x2="50" y2="27" stroke="#a78bfa" stroke-width="4.5" stroke-linecap="round"/>
+</svg>

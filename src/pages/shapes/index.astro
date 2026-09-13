@@ -1,0 +1,128 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { shapes } from '../../data/shapes';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Face shape guides',
+  description:
+    'What each of the six face shapes is, how to check it with a ruler, and which hairstyles and glasses frames work with it.',
+  hasPart: shapes.map((shape) => ({
+    '@type': 'Article',
+    name: shape.h1,
+    url: `/shapes/${shape.slug}/`,
+    description: shape.description,
+  })),
+};
+
+const faqs = [
+  {
+    q: 'How many face shapes are there?',
+    a: 'Most charts use six or seven categories. Six — oval, round, square, heart, oblong and diamond — cover the proportions this tool measures. Some charts add a seventh, triangle, for a jaw that is wider than the forehead.',
+  },
+  {
+    q: 'Can you have two face shapes?',
+    a: 'Yes, and many people do. The categories are regions on a continuous space of proportions, not distinct boxes, so a face can sit between oval and oblong, or between square and round. That is why this tool always shows the runner-up shape alongside the result.',
+  },
+  {
+    q: 'Does face shape determine what looks good on you?',
+    a: 'It is one input, not a verdict. Face shape tells you where a hairstyle or a frame will add width, and where it will add length. Expression, grooming, lighting and camera angle all change how a face reads, often more than the underlying proportions do.',
+  },
+  {
+    q: 'How do I measure my face shape without a photo?',
+    a: 'Stand in front of a mirror with a tape measure. Measure hairline to chin (L), across your cheekbones (W), your forehead (F) and your jaw (J). The ratio L÷W sorts long faces from compact ones, and comparing F with J and W tells you where your face is widest.',
+  },
+];
+
+const jsonLdFaq = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+};
+---
+
+<BaseLayout
+  title="Face Shape Guides — The Six Shapes Explained"
+  description="Plain-English guides to the six face shapes: the proportions that define each one, how to check it with a tape measure, and what suits it."
+  jsonLd={[jsonLd, jsonLdFaq]}
+>
+  <h1>Face shape guides</h1>
+
+  <p>
+    Face shape is a description of bone-structure proportions. It is useful for one specific job:
+    knowing where a hairstyle, a pair of glasses or a beard will add width, and where it will add
+    length. It is not a ranking, and it does not describe how anyone looks.
+  </p>
+
+  <p>
+    Each guide below covers the proportions that define the shape, how to check it with a tape
+    measure, and what to do with the answer. If you would rather not measure anything, the
+    <a href="/">face shape detector</a> does the measuring in your browser.
+  </p>
+
+  <h2>Where the six shapes differ</h2>
+
+  <p>
+    Every shape comes down to two questions: how long the face is relative to its width, and which
+    of the three widths — forehead, cheekbones, jaw — is the largest.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Shape</th>
+        <th>Length ÷ width</th>
+        <th>Widest point</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        shapes.map((shape) => (
+          <tr>
+            <td>
+              <a href={`/shapes/${shape.slug}/`}>{shape.name}</a>
+            </td>
+            <td>{shape.rule}</td>
+            <td>{shape.signs[0]}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  <h2>The guides</h2>
+
+  <ul>
+    {
+      shapes.map((shape) => (
+        <li>
+          <a href={`/shapes/${shape.slug}/`}>
+            <strong>{shape.h1}</strong>
+          </a>{' '}
+          — {shape.summary}
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2>Common questions</h2>
+
+  {
+    faqs.map((item) => (
+      <section>
+        <h3>{item.q}</h3>
+        <p>{item.a}</p>
+      </section>
+    ))
+  }
+
+  <p class="disclaimer">
+    These guides describe proportions and styling, not attractiveness. If a shape is listed here as
+    "avoid", it means it works against the geometry — not that it looks bad.
+  </p>
+</BaseLayout>

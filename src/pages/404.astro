@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { shapes } from '../data/shapes';
+---
+
+<BaseLayout
+  title="Page not found — Face Shape Detector"
+  description="That page does not exist. Go back to the face shape detector or browse the face shape guides."
+  noindex
+>
+  <h1>Page not found</h1>
+
+  <p>
+    That URL does not exist. The two things most people are looking for:
+  </p>
+
+  <ul>
+    <li><a href="/">The face shape detector</a> — measure your face shape in your browser</li>
+    <li><a href="/shapes/">Face shape guides</a> — what each shape is and what suits it</li>
+  </ul>
+
+  <h2>Face shape guides</h2>
+  <ul>
+    {shapes.map((shape) => <li><a href={`/shapes/${shape.slug}/`}>{shape.name} face shape</a></li>)}
+  </ul>
+</BaseLayout>

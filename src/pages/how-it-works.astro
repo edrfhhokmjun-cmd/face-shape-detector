@@ -1,0 +1,209 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { shapes } from '../data/shapes';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: 'How this face shape detector works',
+  description:
+    'The measurement method behind the face shape detector: which landmarks are used, how the ratios are computed, why nothing is uploaded, and what the result cannot tell you.',
+  about: ['facial anthropometry', 'face shape classification', 'on-device computer vision'],
+};
+
+const faqs = [
+  {
+    q: 'Is my photo uploaded?',
+    a: 'No. The image is decoded, measured and discarded inside your browser tab. The face landmark model is downloaded to your device once; after that, analysing a photo makes no network requests at all. You can confirm this in your browser’s developer tools by watching the Network tab while you analyse a photo.',
+  },
+  {
+    q: 'How accurate is the result?',
+    a: 'Lower than we would like, and we would rather say so than invent a number. We evaluated the tool on 200 photos from a public dataset: the category it picked matched the dataset label 30% of the time (top-2, counting the runner-up, 50%). On a five-category problem, chance alone is 20%, so that is a long way from useful — and the labels in that dataset are themselves of unknown quality, since none of the four measured ratios separated the labelled classes at all. What this means in practice: the four measurements the tool reports are reproducible and meaningful (test-retest variation on the same face is small), but the single category label is the weakest part of the output. Read the measurements first, and treat the category as a starting point for the styling guides rather than an answer.',
+  },
+  {
+    q: 'Do you store anything about my face?',
+    a: 'No image, no measurement and no facial template. There is no upload endpoint, no account and no analytics event tied to a result. The measurement exists only in the page while you are looking at it.',
+  },
+  {
+    q: 'Do you score attractiveness?',
+    a: 'No, deliberately. Face shape describes bone-structure proportions and is useful for styling decisions. Scoring how someone looks is a different product, and not one we are interested in building.',
+  },
+];
+
+const jsonLdFaq = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+};
+---
+
+<BaseLayout
+  title="How the Face Shape Detector Works — Method and Limits"
+  description="The method behind the face shape detector: four width measurements, four ratios, nothing uploaded — plus exactly what the result cannot tell you."
+  jsonLd={[jsonLd, jsonLdFaq]}
+>
+  <h1>How this face shape detector works</h1>
+
+  <p>
+    Most face shape tools tell you the answer and nothing about how they got it. This page is the
+    opposite: the full method, so you can judge whether the result deserves your trust, and so you
+    can tell where it is likely to be wrong.
+  </p>
+
+  <h2>1. Find the landmarks</h2>
+
+  <p>
+    The first time you analyse a photo, your browser downloads a face landmark model (about 3 MB).
+    It runs locally and returns 478 points on the face — eyes, brows, nose, lips, jaw contour and
+    forehead. Everything after this step is arithmetic on those points.
+  </p>
+
+  <p>
+    The model is downloaded to your device; your photo is never sent anywhere. That direction
+    matters, and it is why this tool has no upload endpoint to breach.
+  </p>
+
+  <h2>2. Take four measurements</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Measurement</th>
+        <th>Where it is taken</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Face length (L)</td>
+        <td>Hairline to the bottom of the chin</td>
+      </tr>
+      <tr>
+        <td>Cheekbone width (W)</td>
+        <td>Across the widest point of the cheekbones</td>
+      </tr>
+      <tr>
+        <td>Forehead width (F)</td>
+        <td>Across the forehead at its widest point</td>
+      </tr>
+      <tr>
+        <td>Jaw width (J)</td>
+        <td>Across the jaw at the jaw angle</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>3. Turn them into ratios</h2>
+
+  <p>
+    The classification uses ratios, never centimetres. This is what makes the result independent of
+    how close you were to the camera and of the photo's resolution — a face photographed from twice
+    as far has half the pixel width but the same proportions.
+  </p>
+
+  <ul>
+    <li><strong>L ÷ W</strong> — the first fork: long faces (oval, oblong) versus compact ones (round, square).</li>
+    <li><strong>F ÷ J</strong> — whether the forehead or the jaw is wider.</li>
+    <li><strong>W ÷ J</strong> — how fast the face narrows from the cheekbones to the jaw.</li>
+    <li><strong>F ÷ W</strong> — whether the cheekbones are the widest point of the face.</li>
+  </ul>
+
+  <p>
+    Where the face is <em>widest</em> is what separates the shapes that otherwise look alike, so the
+    last two ratios do most of the work. The guides for each of the six shapes state their expected
+    ranges: <a href="/shapes/">face shape guides</a>.
+  </p>
+
+  <h2>4. Check the head angle first</h2>
+
+  <p>
+    Ratios cancel out distance, but they do not cancel out rotation. A head turned even ten degrees
+    compresses one side of the face and moves every width measurement. So before classifying
+    anything, the tool estimates the head's roll, yaw and pitch from the landmarks themselves, warns
+    you when the angle is too large, and rotates the landmark set back to level before measuring.
+  </p>
+
+  <h2>What the result is for</h2>
+
+  <p>
+    The tool reports two things, and they are not equally trustworthy. The
+    <strong>four measurements</strong> are arithmetic on landmarks: reproducible, and directly
+    interpretable ("your cheekbones are about 27% wider than your jaw"). The
+    <strong>category label</strong> is a convention applied to those numbers, and it is the weak part.
+  </p>
+
+  <p>
+    So read the measurements first. Use the category as an entry point into the styling guides —
+    where a hairstyle adds width, which frames balance which part of the face — and not as a verdict
+    about your face.
+  </p>
+
+  <h2>What it cannot tell you</h2>
+
+  <ul>
+    <li>
+      <strong>Your hairline is not a landmark.</strong> The model estimates the top of the forehead
+      from the visible skin. Hair covering the forehead makes the face read shorter than it is,
+      which pushes the result towards round or square.
+    </li>
+    <li>
+      <strong>Beards thicken the jaw.</strong> A full beard can move a result from heart towards
+      square without any change in bone structure. Re-test clean-shaven if you want the baseline.
+    </li>
+    <li>
+      <strong>Phone front cameras are wide-angle.</strong> Shot from close up, they inflate apparent
+      face width. Stand at arm's length rather than leaning in.
+    </li>
+    <li>
+      <strong>Borderline faces are genuinely borderline.</strong> The six categories divide a
+      continuous space of proportions, and the four ratios have a narrow range — most real faces sit
+      well inside the middle of it. When two categories score close together, the tool shows both
+      rather than pretending the choice is clear.
+    </li>
+    <li>
+      <strong>"Forehead width" has no single definition.</strong> Published guides disagree about
+      where to measure it — at the hairline, midway to the brows, or across the temples. Different
+      choices give different numbers for the same face, which is a large part of why different tools
+      report different shapes. This tool measures at the widest point of the forehead and says so.
+    </li>
+    <li>
+      <strong>It is not a measurement of attractiveness</strong>, and it never scores you. Face
+      shape is a description of proportions; every shape has styling that works with it.
+    </li>
+  </ul>
+
+  <h2>Privacy, concretely</h2>
+
+  <ul>
+    <li>No upload: the image is read from your device and never sent.</li>
+    <li>No storage: no image, no measurement, no facial template is kept anywhere.</li>
+    <li>No account, no signup, no email.</li>
+    <li>
+      Verifiable: open your browser's developer tools, watch the Network tab, and analyse a photo
+      once the model has loaded. There is nothing to see, because nothing is sent.
+    </li>
+  </ul>
+
+  <p>
+    You can also use the tool offline after the first load, which is only possible because the
+    computation never leaves the device.
+  </p>
+
+  <h2>Questions</h2>
+
+  {
+    faqs.map((item) => (
+      <section>
+        <h3>{item.q}</h3>
+        <p>{item.a}</p>
+      </section>
+    ))
+  }
+
+  <p>
+    <a href="/">Measure your face shape →</a> · <a href="/shapes/">Browse the six shapes →</a>
+  </p>
+</BaseLayout>

@@ -1,0 +1,31 @@
+{
+  "name": "face-shape-detector",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync:assets": "node scripts/sync-assets.mjs",
+    "predev": "node scripts/sync-assets.mjs",
+    "dev": "astro dev",
+    "prebuild": "node scripts/sync-assets.mjs && node scripts/preflight.mjs",
+    "build": "astro build",
+    "preview": "astro preview",
+    "preflight": "node scripts/preflight.mjs",
+    "preflight:strict": "node scripts/preflight.mjs --strict",
+    "batch": "node scripts/batch-analyze.mjs",
+    "batch:anchors": "node scripts/batch-analyze.mjs --compare-anchors",
+    "import:photos": "node scripts/import-photos.mjs",
+    "fetch:eval": "node scripts/fetch-eval-dataset.mjs",
+    "analyze:eval": "node scripts/analyze-eval.mjs",
+    "debug:dump": "node scripts/debug-dump.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@mediapipe/tasks-vision": "^0.10.0",
+    "astro": "^7.3.2"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0",
+    "typescript": "^5.6.0"
+  }
+}

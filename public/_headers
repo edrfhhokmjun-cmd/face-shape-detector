@@ -1,0 +1,11 @@
+# Consumed by Cloudflare Pages / Netlify (this file is NOT served to visitors).
+# The wasm and model filenames never change, so they can be cached forever —
+# that is what makes the first photo analysis fast on repeat visits.
+
+/mediapipe/*
+  Cache-Control: public, max-age=31536000, immutable
+  Cross-Origin-Resource-Policy: cross-origin
+
+/models/*
+  Cache-Control: public, max-age=31536000, immutable
+  Cross-Origin-Resource-Policy: cross-origin

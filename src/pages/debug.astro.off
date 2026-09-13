@@ -1,0 +1,103 @@
+---
+/**
+ * 锚点校准页。只在开发时用，已设为 noindex；上线前建议直接删掉这个文件，
+ * 或者用 import.meta.env.DEV 判断后不输出链接。
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Debug — landmark calibration"
+  description="Internal calibration page for anchor indices. Not indexed."
+  noindex
+>
+  <h1>Landmark 校准</h1>
+
+  <p class="muted">
+    这个页面用来确定 <code>src/lib/face-shape/landmarks.ts</code> 里的 <code>ANCHORS</code>
+    该取哪些索引。做法：传一张正脸照 → 打开标签 → 鼠标悬停找到你要的点 → 看下方候选组的灵敏度表。
+  </p>
+
+  <p>
+    <input type="file" accept="image/*" data-file-input />
+  </p>
+
+  <p>
+    <label><input type="checkbox" data-show-all checked /> 显示全部 478 个点</label>
+    &nbsp;
+    <label><input type="checkbox" data-show-labels checked /> 显示锚点标签</label>
+  </p>
+
+  <p class="muted" data-status>等待图片</p>
+  <p class="muted" data-hover>把鼠标移到脸上查看最近的点位索引</p>
+
+  <p>
+    <label>
+      点位探测器：
+      <input type="number" min="0" max="477" placeholder="例如 234" data-probe-index />
+    </label>
+    <span class="muted" data-probe-readout></span>
+  </p>
+
+  <canvas data-canvas style="width:100%;max-width:560px;border:1px solid var(--border);border-radius:12px;"></canvas>
+
+  <h2>候选锚点灵敏度</h2>
+  <p class="muted">
+    所有宽度按颧宽归一化（跨照片可比）。如果某组候选在不同照片之间波动明显更大，就说明它不稳，
+    不要用它。标了「当前默认」的行是 <code>ANCHORS</code> 正在用的点位。
+  </p>
+  <p class="muted">
+    <strong>纵向偏移</strong>按脸长归一化，眼外角连线 = 0。
+    <strong>不要用我给的绝对参考值</strong>（我最初写的那几个是拍脑袋的，实测不符）——
+    用表底部「参考 · 眉心 / 下巴」两行当坐标系：
+    眉线在哪儿、下巴在哪儿一目了然。
+    <strong>脸型分类里的「额宽」是颞部（太阳穴）宽度，不是额头中部的宽度</strong>：
+    偏移越靠上（越接近发际线），量到的脸越窄 —— 这是最常见的额宽锚点错误。
+  </p>
+  <div data-table></div>
+
+  <h2>换锚点后的分类结果</h2>
+  <p class="muted">
+    <strong>这一节是重点。</strong>把每个候选点对分别换上去，算出完整的四个比例和分类结果。
+    判据不是准确率（没有标注算不了），而是<strong>自洽性</strong>：
+  </p>
+  <ul class="muted">
+    <li>
+      锚点正确时，四个比例会<strong>同时</strong>落进同一个脸型的合理区间，置信度明显抬起来
+    </li>
+    <li>
+      锚点错误时，比例之间互相矛盾，所有形状的规则都落空，置信度卡在 40% 附近
+      （当前默认锚点就是这个症状）
+    </li>
+    <li>★ 标记的是置信度最高的一行。看它比"当前默认"高出多少 —— 差得越多，说明默认锚点错得越狠</li>
+  </ul>
+  <p class="muted">
+    注：下颌角固定用默认点计算，不随颌宽候选变化（次要影响，暂不引入更多变量）。
+  </p>
+  <div data-variants></div>
+
+  <h2>完整测量结果</h2>
+  <pre data-json style="overflow:auto;font-size:0.85rem;line-height:1.5;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--panel);"></pre>
+
+  <h2>怎么用这些数字校准</h2>
+  <ol>
+    <li>
+      收集 20–30 张<strong>已知脸型</strong>的照片（先用公开资料里明确标注过脸型的人，或者自己
+      用尺子量过的人），放到 <code>regression/</code>（已在 .gitignore 里）。
+    </li>
+    <li>
+      对每张照片记录：本工具输出的 shape、confidence、runner-up，以及你预期的 shape。
+    </li>
+    <li>
+      先调 <code>ANCHORS</code>（让比例在同类脸型之间更稳），再调
+      <code>classify.ts</code> 里的 <code>band()</code> 区间（让分类正确率更高）。
+    </li>
+    <li>
+      记录每轮的一致率，写进 CALIBRATION.md 的表里。没有数字支撑的调参就是玄学。
+    </li>
+  </ol>
+
+  <script>
+    import '../scripts/debug.ts';
+  </script>
+</BaseLayout>

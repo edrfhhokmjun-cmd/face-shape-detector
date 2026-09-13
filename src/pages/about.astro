@@ -1,0 +1,108 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// 同一个邮箱也用在 privacy.astro 和 contact.astro，三处应保持一致。
+const CONTACT_EMAIL = 'edrfhhokmjun@gmail.com';
+---
+
+<BaseLayout
+  title="About — Face Shape Detector"
+  description="A free, browser-based face shape detector. No upload, no account, no attractiveness scoring — and a published method so you can judge the result for yourself."
+>
+  <h1>About</h1>
+
+  <p>
+    This site does one thing: it measures the proportions of a face from a photo and names the shape
+    those proportions describe. It runs entirely in your browser, it is free, and it requires no
+    account.
+  </p>
+
+  <h2>Why it exists</h2>
+
+  <p>
+    Face shape is genuinely useful for a narrow set of decisions: which hairstyle adds width where
+    you want it, which glasses frames balance which part of your face, whether a beard should be wide
+    or long. Most tools that answer the question do so with an upload button and a confident
+    percentage, and tell you nothing about how they got there.
+  </p>
+
+  <p>
+    So this one takes the opposite approach on two points. It never takes your photo — the analysis
+    happens on your device, and there is no upload endpoint to breach. And it publishes its
+    <a href="/how-it-works/">method and its limitations</a>, including where the result is likely to
+    be wrong, so you can decide how much to trust it.
+  </p>
+
+  <h2>How it is built</h2>
+
+  <ul>
+    <li>
+      A face landmark model runs locally in your browser and returns 478 reference points on the
+      face. It is downloaded once (about 3 MB) and cached.
+    </li>
+    <li>
+      Four measurements are taken from those points — face length, cheekbone width, forehead width
+      and jaw width — and converted into ratios, so the result does not depend on how close you were
+      to the camera.
+    </li>
+    <li>
+      The ratios are compared against the ranges that define each shape. When two shapes score
+      close together, both are shown rather than one being picked silently.
+    </li>
+    <li>
+      The site is a static site with no server-side code. That is what makes the privacy claim
+      structural rather than a promise: there is no server that could receive an image.
+    </li>
+  </ul>
+
+  <h2>What it deliberately does not do</h2>
+
+  <ul>
+    <li>
+      <strong>It does not score attractiveness.</strong> Face shape describes bone structure. Judging
+      how someone looks is a different product, and not one this site is interested in building.
+    </li>
+    <li>
+      <strong>It does not collect anything.</strong> No account, no email, no analytics, no cookies,
+      no stored result. See the <a href="/privacy/">privacy policy</a>.
+    </li>
+    <li>
+      <strong>It does not claim precision it cannot demonstrate.</strong> The
+      <a href="/how-it-works/">method page</a> says plainly what the tool cannot account for and what
+      the published accuracy of this kind of classifier actually looks like.
+    </li>
+    <li>
+      <strong>It does not use a contact form.</strong> A form needs a server, and this site has none
+      by design. Contact is by email instead — see <a href="/contact/">contact</a>.
+    </li>
+  </ul>
+
+  <h2>An honest note on accuracy</h2>
+
+  <p>
+    Face shape categories are conventions, not measured facts. Two people looking at the same
+    borderline face often disagree about which label fits. Published work on automated face shape
+    classification reports accuracy in the low-to-mid 80s on small labelled sets, and no tool in this
+    category — including the well-funded commercial ones — publishes a validated accuracy figure for
+    its consumer product.
+  </p>
+
+  <p>
+    So we measured ours and published the number. On 200 photos from a public dataset, the category
+    we picked matched the dataset's label 30% of the time — 50% counting the runner-up. On a
+    five-category problem, chance alone is 20%, so that is barely better than guessing, and the
+    dataset's own labels are of unknown quality. The honest conclusion is that the four measurements
+    are the reliable part of this tool and the single category label is not. That is why the
+    measurements are shown first, why the runner-up is always displayed, and why the
+    <a href="/how-it-works/">method page</a> says all of this rather than quoting a flattering
+    figure. If you think it got your shape wrong, <a href="/contact/">tell us</a> — that is how the
+    boundaries get fixed.
+  </p>
+
+  <h2>Contact</h2>
+
+  <p>
+    <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> · or see the
+    <a href="/contact/">contact page</a> for what is useful to include.
+  </p>
+</BaseLayout>

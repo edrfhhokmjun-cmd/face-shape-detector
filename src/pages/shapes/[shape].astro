@@ -1,0 +1,151 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { shapes, type ShapeGuide } from '../../data/shapes';
+
+export function getStaticPaths() {
+  return shapes.map((shape) => ({ params: { shape: shape.slug }, props: { shape } }));
+}
+
+interface Props {
+  shape: ShapeGuide;
+}
+
+const { shape } = Astro.props;
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: shape.title,
+    description: shape.description,
+    about: `${shape.name} face shape`,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: `How to check whether you have a ${shape.name.toLowerCase()} face shape with a tape measure`,
+    step: shape.ruler.map((step, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      text: step,
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: shape.faq.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Face shape guides', item: '/shapes/' },
+      { '@type': 'ListItem', position: 2, name: `${shape.name} face shape` },
+    ],
+  },
+];
+---
+
+<BaseLayout title={shape.title} description={shape.description} jsonLd={jsonLd}>
+  <p class="muted"><a href="/shapes/">← All face shape guides</a></p>
+
+  <h1>{shape.h1}</h1>
+
+  <p>{shape.summary}</p>
+
+  <p class="disclaimer">
+    <strong>In one line:</strong> {shape.rule}
+  </p>
+
+  <h2>How to tell</h2>
+  <ul>
+    {shape.signs.map((sign) => <li>{sign}</li>)}
+  </ul>
+
+  <h2>Check it yourself with a tape measure</h2>
+  <ol>
+    {shape.ruler.map((step) => <li>{step}</li>)}
+  </ol>
+
+  <p>
+    Prefer not to measure? The <a href="/">face shape detector</a> makes the same comparisons from a
+    photo, inside your browser — your photo is never uploaded.
+  </p>
+
+  <p class="disclaimer">
+    <strong>On the numbers above:</strong> the ratios quoted here describe tape-measure measurements —
+    hairline to chin for length, and the widest points for the three widths. The photo tool derives
+    its ratios from facial landmarks, which is a slightly different quantity, and its numbers
+    typically sit a little lower than the ranges quoted here. Neither is wrong; they are two ways of
+    drawing the same outline, and the measurement basis is stated so you can compare like with like.
+  </p>
+
+  <h2>Hairstyles</h2>
+  <h3>Works with {shape.name.toLowerCase()}</h3>
+  <ul>
+    {shape.hair.works.map((item) => <li>{item}</li>)}
+  </ul>
+  <h3>Works against it</h3>
+  <ul>
+    {shape.hair.avoid.map((item) => <li>{item}</li>)}
+  </ul>
+
+  <h2>Glasses frames</h2>
+  <h3>Frames that balance</h3>
+  <ul>
+    {shape.glasses.works.map((item) => <li>{item}</li>)}
+  </ul>
+  <h3>Frames that repeat the geometry</h3>
+  <ul>
+    {shape.glasses.avoid.map((item) => <li>{item}</li>)}
+  </ul>
+
+  <h2>{shape.extra.label}</h2>
+  <ul>
+    {shape.extra.points.map((point) => <li>{point}</li>)}
+  </ul>
+
+  <h2>Easily confused with</h2>
+  {
+    shape.confusedWith.map((other) => (
+      <section>
+        <h3>
+          <a href={`/shapes/${other.slug}/`}>{other.shape}</a>
+        </h3>
+        <p>{other.how}</p>
+      </section>
+    ))
+  }
+
+  <h2>FAQ</h2>
+  {
+    shape.faq.map((item) => (
+      <section>
+        <h3>{item.q}</h3>
+        <p>{item.a}</p>
+      </section>
+    ))
+  }
+
+  <h2>Other shapes</h2>
+  <ul>
+    {
+      shapes
+        .filter((other) => other.slug !== shape.slug)
+        .map((other) => (
+          <li>
+            <a href={`/shapes/${other.slug}/`}>{other.h1}</a>
+          </li>
+        ))
+    }
+  </ul>
+
+  <h2>Measure yours</h2>
+  <p>
+    <a href="/">Open the face shape detector →</a> — six measurements, no upload, no signup.
+  </p>
+</BaseLayout>

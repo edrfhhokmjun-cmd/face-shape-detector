@@ -1,0 +1,30 @@
+node_modules/
+dist/
+.astro/
+.npm-cache/
+.playwright-browsers/
+.smoke/
+.tools/
+.eval/
+.DS_Store
+*.log
+
+# wasm 从 node_modules 复制，不进 git（构建时 npm install 就有了）
+public/mediapipe/
+
+# ⚠️ 模型文件**要**提交进仓库（约 3.6 MB）。
+# 理由：它默认是从 Google 存储桶下载的，CI 里那次外网下载失败会直接让部署挂掉 ——
+# 为省 3.6 MB 冒这个险不值得。注意下面两行的顺序：先忽略目录内容，再排除目标文件。
+public/models/*
+!public/models/face_landmarker.task
+
+# 校准用的真实人脸照片：涉及肖像权，永远不要提交。
+# 标注模板和说明要留着（那是可共享的工作流）。
+#
+# ⚠️ labels.json 本身也**不提交**：它把照片文件名与脸型标注关联起来，
+#    等于公开"某个人的脸型"。工作产物留在本地即可。
+#    如果你确实想把它纳入版本管理（比如多机协作），把下面这行加回来：
+#      !regression/labels.json
+regression/*
+!regression/README.md
+!regression/labels.example.json

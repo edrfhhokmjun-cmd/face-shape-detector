@@ -1,0 +1,137 @@
+:root {
+  --bg: #0b0f14;
+  --panel: #121821;
+  --panel-2: #171f2a;
+  --border: #23303f;
+  --text: #e6edf3;
+  --muted: #93a4b8;
+  --accent: #38bdf8;
+  --accent-2: #a78bfa;
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --error: #f87171;
+  --radius: 12px;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f7f9fc;
+    --panel: #ffffff;
+    --panel-2: #f1f5f9;
+    --border: #dbe3ec;
+    --text: #16202b;
+    --muted: #5b6b7d;
+    color-scheme: light;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* 关键：author 的 display 声明会覆盖 [hidden] 的 UA 样式。
+   组件里有 .stage { display: grid } 这类规则，不加这条的话 hidden 会失效
+   （表现为「没选图片时舞台区域就已经显示出来」）。 */
+[hidden] {
+  display: none !important;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans SC",
+    "PingFang SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 20px 96px;
+}
+
+h1 {
+  font-size: clamp(1.6rem, 1.2rem + 2vw, 2.4rem);
+  line-height: 1.25;
+  margin: 0 0 12px;
+}
+
+h2 {
+  font-size: 1.3rem;
+  margin: 48px 0 12px;
+}
+
+h3 {
+  font-size: 1.05rem;
+  margin: 24px 0 8px;
+}
+
+p,
+li {
+  color: var(--text);
+}
+
+a {
+  color: var(--accent);
+}
+
+code {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1px 5px;
+  font-size: 0.9em;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 0.95rem;
+}
+
+th,
+td {
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  text-align: left;
+}
+
+th {
+  background: var(--panel-2);
+}
+
+ul.warnings {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+}
+
+ul.warnings li {
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border-left: 3px solid var(--warn);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.disclaimer {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-size: 0.92rem;
+  color: var(--muted);
+}

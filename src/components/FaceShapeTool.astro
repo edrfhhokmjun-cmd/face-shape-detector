@@ -1,0 +1,292 @@
+---
+/**
+ * 工具本体。骨架是静态 HTML（SEO 友好），交互逻辑在客户端脚本里。
+ * 注意：模型和 wasm 都是用户选了图片之后才加载的 —— 首屏不碰它们。
+ */
+---
+
+<section class="tool" data-tool-root>
+  <div class="dropzone" data-dropzone role="button" tabindex="0" aria-label="Choose a front-facing photo">
+    <p class="dropzone-title">Drop a photo here, or click to choose one</p>
+    <p class="dropzone-hint">
+      You can also paste a screenshot with <kbd>Ctrl</kbd>+<kbd>V</kbd> · JPG / PNG / WebP
+    </p>
+    <p class="dropzone-privacy">
+      🔒 Processed in your browser — your photo is never uploaded
+    </p>
+  </div>
+
+  <input
+    type="file"
+    accept="image/*"
+    hidden
+    data-file-input
+  />
+
+  <div class="stage" data-stage hidden>
+    <canvas class="photo" data-photo-canvas></canvas>
+
+    <label class="toggle">
+      <input type="checkbox" data-toggle-landmarks />
+      Show all 478 landmarks
+    </label>
+  </div>
+
+  <noscript>
+    <p class="error">
+      This tool runs entirely in your browser, which is what keeps your photo on your device — so
+      with JavaScript disabled there is nothing to run, and no server will process it for you by
+      design. You can measure your face shape with a tape measure instead: see the
+      <a href="/shapes/">face shape guides</a>.
+    </p>
+  </noscript>
+
+  <p class="status" data-status data-tone="idle" role="status">Waiting for a photo</p>
+  <p class="error" data-error hidden></p>
+
+  <div class="results" data-results aria-live="polite" hidden>
+    <h3>Your measurements</h3>
+    <p class="muted measure-note">
+      These are the actual numbers the tool computed. They are the reliable part — read them first.
+    </p>
+    <dl class="ratios" data-ratios></dl>
+    <p class="widest" data-widest></p>
+
+    <div class="closest">
+      <h3>Closest match</h3>
+      <p class="shape" data-shape></p>
+      <p class="runner-up muted" data-runner-up></p>
+      <p class="caveat muted">
+        The six categories are conventions, not measurements, and most real faces sit between two of
+        them. So the two closest are shown instead of one verdict, and neither comes with a
+        confidence percentage — on our own evaluation that figure did not predict whether the match
+        was right. Which one fits your face is a judgement the numbers cannot make for you.
+      </p>
+      <p class="guide-links" data-guide-links></p>
+    </div>
+
+    <p class="pose muted" data-pose></p>
+
+    <ul class="warnings" data-warnings></ul>
+
+    <button type="button" class="reset" data-reset>Try another photo</button>
+  </div>
+</section>
+
+<style>
+  .tool {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin: 24px 0;
+  }
+
+  .dropzone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .dropzone:hover,
+  .dropzone[data-dragging] {
+    border-color: var(--accent);
+    background: var(--panel-2);
+  }
+
+  .dropzone-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+
+  .dropzone-hint,
+  .dropzone-privacy {
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .dropzone-privacy {
+    color: var(--ok);
+  }
+
+  kbd {
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 0 4px;
+    font-size: 0.85em;
+  }
+
+  .stage {
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+  }
+
+  .photo {
+    width: 100%;
+    max-width: 520px;
+    height: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+
+  .toggle {
+    font-size: 0.9rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status {
+    margin: 14px 0 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .status[data-tone='busy'] {
+    color: var(--accent);
+  }
+
+  .status[data-tone='done'] {
+    color: var(--ok);
+  }
+
+  .status[data-tone='error'] {
+    color: var(--error);
+  }
+
+  .error {
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--error) 12%, transparent);
+    border-left: 3px solid var(--error);
+    font-size: 0.95rem;
+  }
+
+  .results {
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  /* 键盘焦点：拖拽区是 role="button"，必须看得见焦点在哪 */
+  .dropzone:focus-visible,
+  .reset:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* noscript 块 */
+  .error a {
+    color: inherit;
+  }
+
+  .headline {
+    display: grid;
+    gap: 2px;
+  }
+
+  .measure-note {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+  }
+
+  .widest {
+    margin: 14px 0 0;
+    font-size: 0.95rem;
+  }
+
+  .closest {
+    margin-top: 22px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  .shape {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .caveat {
+    margin: 10px 0 0;
+    font-size: 0.88rem;
+  }
+
+  .guide-links {
+    margin: 12px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    font-size: 0.95rem;
+  }
+
+  .confidence,
+  .runner-up,
+  .pose {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  .pose {
+    margin-top: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ratios {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 16px;
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ⚠️ 下面的 dt / dd / span 是 tool.ts 用 innerHTML **动态注入**的。
+     Astro 的 scoped 样式只在构建期为已存在的元素加 data-astro-cid-* 属性，
+     注入的元素拿不到它 —— 所以这些选择器必须用 :global()，否则整条规则静默失效。
+     实测症状：标签和读法连成一句、没有间隔，读法也不是灰色小字。 */
+  .ratios :global(dt) {
+    font-size: 0.95rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 8px;
+  }
+
+  .ratios :global(dt) :global(span) {
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .ratios :global(dd) {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .reset {
+    margin-top: 20px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+
+  .reset:hover {
+    border-color: var(--accent);
+  }
+</style>
+
+<script>
+  import '../scripts/tool.ts';
+</script>

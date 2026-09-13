@@ -1,0 +1,13 @@
+# 仓库会在 Linux 上构建（Cloudflare Pages），所以换行符统一成 LF，
+# 避免 Windows 上提交的 CRLF 在构建环境里造成意外的 diff 或脚本问题。
+* text=auto eol=lf
+
+# 二进制文件不要做文本规范化
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.task binary
+*.wasm binary
+*.woff2 binary

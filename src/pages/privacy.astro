@@ -1,0 +1,197 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const CONTACT_EMAIL = 'edrfhhokmjun@gmail.com';
+const LAST_UPDATED = '13 September 2026';
+
+const faqs = [
+  {
+    q: 'Does this site store my photo?',
+    a: 'No. Your photo is read from your device by your own browser and never sent anywhere, so there is nothing for us to store. The analysis creates no file, no measurement record and no facial template.',
+  },
+  {
+    q: 'Do you create a facial template or biometric data?',
+    a: 'No. The landmark coordinates exist in your browser tab while you are looking at the result and are discarded when you close the page. No biometric identifier is derived, stored or transmitted.',
+  },
+  {
+    q: 'Do you use cookies or analytics?',
+    a: 'This site sets no cookies and includes no analytics, no advertising and no third-party scripts. The only network request it makes is downloading the page itself and, on first use, the face landmark model — both from this site.',
+  },
+  {
+    q: 'What does the server see?',
+    a: 'Only the request for the page and its files, like any website. That means our hosting provider may keep standard server logs containing your IP address, user agent and the URL requested, for security and abuse prevention. Your photo is never part of any request, so it can never appear in a log.',
+  },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Privacy policy',
+  description:
+    'This site processes photos entirely in your browser. Nothing is uploaded, stored, or used to build a facial template.',
+  dateModified: '2026-09-13',
+  mainEntity: faqs.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+};
+---
+
+<BaseLayout
+  title="Privacy Policy — Face Shape Detector"
+  description="This site analyses your photo entirely inside your browser. Nothing is uploaded, nothing is stored, and no facial template is ever created."
+  jsonLd={jsonLd}
+>
+  <h1>Privacy policy</h1>
+
+  <p class="muted">Last updated: {LAST_UPDATED}</p>
+
+  <p>
+    This policy is short because there is almost nothing to disclose. The entire analysis runs in
+    your browser, which means the usual privacy questions — what do you store, who do you share it
+    with, how long do you keep it — have the same answer: nothing, nobody, and not at all.
+  </p>
+
+  <h2>The short version</h2>
+  <ul>
+    <li><strong>Your photo is never uploaded.</strong> It is decoded and measured by your own browser.</li>
+    <li><strong>Nothing is stored.</strong> No image, no measurement, no facial template.</li>
+    <li><strong>No account, no signup, no email required.</strong></li>
+    <li>
+      <strong>No cookies, no analytics, no third-party scripts.</strong> The page loads its own files
+      and nothing else. On first use it also downloads the face landmark model from this site.
+    </li>
+  </ul>
+
+  <h2>What happens when you analyse a photo</h2>
+  <ol>
+    <li>Your browser reads the image file from your device. It is not sent anywhere.</li>
+    <li>
+      A face landmark model — downloaded to your device the first time you use the tool — locates
+      reference points on the face. Standard image loading, nothing leaves the page.
+    </li>
+    <li>
+      Distances between those points are converted into ratios and classified. This is arithmetic
+      running locally.
+    </li>
+    <li>
+      The result is displayed. When you close or reload the page, the image data and the
+      measurements are gone.
+    </li>
+  </ol>
+
+  <p>
+    You can verify all of this yourself: open your browser's developer tools, switch to the Network
+    tab, and analyse a photo once the model has loaded. No request is made, because nothing is sent.
+    The tool also works offline after the first load, which is only possible because the computation
+    never leaves the device.
+  </p>
+
+  <h2>What we do not collect</h2>
+  <ul>
+    <li>Your photo, or any copy, thumbnail or derivative of it.</li>
+    <li>Any measurement, ratio or result from your analysis.</li>
+    <li>
+      Any facial template, embedding or biometric identifier. The analysis is transient and exists
+      only in the page you are looking at.
+    </li>
+    <li>Any account, profile, email address or other identifier.</li>
+    <li>Any analytics event, session recording or heat-map data.</li>
+  </ul>
+
+  <h2>What the server does see</h2>
+
+  <p>
+    Serving a web page requires a server, and servers keep logs. Our hosting provider may record the
+    standard request information — IP address, user agent, the URL requested and a timestamp — for
+    security, abuse prevention and aggregate traffic measurement. This is the same information any
+    website receives when you visit it.
+  </p>
+
+  <p>
+    <strong>Your photo cannot appear in these logs</strong>, because no request ever contains it.
+    There is no upload endpoint on this site to log against.
+  </p>
+
+  <h2>Cookies and local storage</h2>
+
+  <p>
+    This site sets no cookies and writes nothing to local storage. Your browser may cache the page
+    and the model file, as it would for any website; that cache is on your device and you can clear
+    it at any time from your browser settings.
+  </p>
+
+  <h2>Third parties</h2>
+
+  <p>
+    There are none at runtime. The page is served from this site, it uses your system fonts, and it
+    loads no third-party scripts, fonts, trackers or CDNs. The face landmark model is fetched from
+    this site as well, not from a third-party service.
+  </p>
+
+  <h2>If advertising is added later</h2>
+
+  <p>
+    This site currently carries no advertising. If advertising is introduced, this policy will be
+    updated before that happens, and it will be updated to name the ad provider and describe the
+    cookies or identifiers it uses and the consent it requires in your region.
+  </p>
+
+  <p>
+    One thing will not change: <strong>an advertising script cannot see your photo</strong>, because
+    your photo never leaves your browser. Ad technology on this site would have access to the page
+    and to information about the visit, never to the image or the analysis.
+  </p>
+
+  <h2>Children</h2>
+
+  <p>
+    This site is not directed at children and collects no personal information from anyone, of any
+    age. Because nothing is collected, there is no age-verification gate and no data to delete.
+  </p>
+
+  <h2>Your rights</h2>
+
+  <p>
+    Privacy laws such as the GDPR and the CCPA give you the right to access, correct, delete or
+    restrict processing of your personal data, and to object to it being sold or shared. The
+    practical position here is simple: this site holds no personal data about you, so there is
+    nothing to access, correct or delete. That is a design decision rather than a limitation.
+  </p>
+
+  <p>
+    On the specific question of biometric data: no biometric template is generated, stored or
+    transmitted, and the analysis is not used to identify anyone. The image is processed transiently
+    on your own device at your request.
+  </p>
+
+  <h2>Changes to this policy</h2>
+
+  <p>
+    If the way this site handles data changes, this page will be updated and the date at the top
+    will change. Because the current approach is to collect nothing, the realistic triggers for an
+    update are adding advertising or adding a feature that requires a server.
+  </p>
+
+  <h2>Contact</h2>
+
+  <p>
+    Questions about this policy: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+  </p>
+
+  <h2>Common questions</h2>
+
+  {
+    faqs.map((item) => (
+      <section>
+        <h3>{item.q}</h3>
+        <p>{item.a}</p>
+      </section>
+    ))
+  }
+
+  <p>
+    See also <a href="/how-it-works/">how the measurement works</a>, including its limitations.
+  </p>
+</BaseLayout>

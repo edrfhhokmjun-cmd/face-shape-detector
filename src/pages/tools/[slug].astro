@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { relatedTools, routedTools, type ToolEntry } from '../../data/tools';
+
+export function getStaticPaths() {
+  return routedTools.map((tool) => ({ params: { slug: tool.slug }, props: { tool } }));
+}
+
+interface Props {
+  tool: ToolEntry;
+}
+
+const { tool } = Astro.props;
+const related = relatedTools(tool.slug);
+---
+
+<BaseLayout title={tool.title} description={tool.description}>
+  <h1>{tool.h1}</h1>
+
+  <p>{tool.description}</p>
+
+  <p class="disclaimer">
+    这是一个由 <code>src/data/tools.ts</code> 驱动的占位页面。把 <code>status</code> 改成
+    <code>'live'</code> 就会开始生成，但内容需要你补齐 —— 没有真实内容的页面既排不上名，
+    也过不了广告审核。工具组件按 <code>slug</code> 在这里挂载。
+  </p>
+
+  {related.length > 0 && (
+    <section>
+      <h2>相关工具</h2>
+      <ul>
+        {related.map((item) => (
+          <li>
+            <a href={item.route}>{item.h1}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</BaseLayout>

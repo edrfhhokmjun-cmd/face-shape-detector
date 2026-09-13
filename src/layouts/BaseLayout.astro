@@ -1,0 +1,128 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** 结构化数据（JSON-LD 对象），会以 application/ld+json 输出 */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const { title, description, jsonLd, noindex = false } = Astro.props;
+
+// ⚠️ canonical 的陷阱：如果 site 还是占位域名，就**不要**发 canonical / og:url。
+// 错误的 canonical 会让搜索引擎把每一页的「正式版本」指向一个你不拥有的域名 ——
+// 那是上线事故，不是待办。宁可没有 canonical，也不要有一个错的。
+const siteUrl = Astro.site;
+const hasRealDomain = Boolean(siteUrl && siteUrl.hostname !== 'example.com');
+const canonical = hasRealDomain ? new URL(Astro.url.pathname, siteUrl).href : null;
+const ogImage = hasRealDomain ? new URL('/og.png', siteUrl).href : null;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="generator" content={Astro.generator} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && <meta property="og:image:width" content="1200" />}
+    {ogImage && <meta property="og:image:height" content="630" />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+
+    {
+      jsonLd && (
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(Array.isArray(jsonLd) ? jsonLd : [jsonLd])}
+        />
+      )
+    }
+  </head>
+  <body>
+    <header class="site-header">
+      <nav>
+        <a href="/" class="brand">Face Shape Detector</a>
+        <span class="nav-links">
+          <a href="/shapes/">Face shape guides</a>
+          <a href="/how-it-works/">How it works</a>
+          <a href="/about/">About</a>
+        </span>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        <a href="/">Detector</a> · <a href="/shapes/">Guides</a> · <a href="/how-it-works/">How it
+          works</a> · <a href="/about/">About</a> · <a href="/contact/">Contact</a> ·
+        <a href="/privacy/">Privacy</a>
+      </p>
+      <p class="muted">
+        Photos are processed in your browser and never uploaded. Results describe bone-structure
+        proportions for styling — not attractiveness.
+      </p>
+    </footer>
+
+    <style>
+      .site-header {
+        border-bottom: 1px solid var(--border);
+        background: var(--panel);
+      }
+
+      .site-header nav {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 12px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+
+      .brand {
+        font-weight: 700;
+        text-decoration: none;
+        color: var(--text);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 16px;
+        font-size: 0.92rem;
+      }
+
+      .site-footer {
+        border-top: 1px solid var(--border);
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 20px;
+        font-size: 0.88rem;
+      }
+
+      .site-footer p {
+        margin: 4px 0;
+      }
+    </style>
+  </body>
+</html>

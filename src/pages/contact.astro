@@ -1,0 +1,116 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// 与 privacy.astro / about.astro 保持一致。
+const CONTACT_EMAIL = 'edrfhhokmjun@gmail.com';
+
+const faqs = [
+  {
+    q: 'Why is there no contact form?',
+    a: 'Because a form needs a server to receive it, and this site deliberately has no server-side code — that is what makes the "your photo never leaves your device" claim structural rather than a promise. Email keeps the architecture honest.',
+  },
+  {
+    q: 'Can you tell me why my result looked wrong?',
+    a: 'Not directly, and that is by design: we cannot see your photo, because it never reaches us. What helps enormously is your own description — your shape as you understand it, the shape the tool reported, and anything unusual about the photo (hair over the forehead, a beard, a close-up selfie, a tilted head). That is enough to identify most failure modes.',
+  },
+  {
+    q: 'Do you want to know when the result is wrong?',
+    a: 'Yes — that is the most useful email you can send. The category boundaries are not yet validated at scale, and reports of mismatches are how they get corrected. Include your face shape as you understand it and the shape the tool gave you.',
+  },
+  {
+    q: 'Will you add a server so it works on more devices?',
+    a: 'No. Server-side processing would mean uploading photos, which is the one thing this tool exists not to do. Where a device cannot run the model, the honest answer is that this tool is not for that device.',
+  },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Contact',
+  description:
+    'How to contact the face shape detector about bugs, inaccurate results, or licensing. Email only — the site has no server-side code.',
+  mainEntity: faqs.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+};
+---
+
+<BaseLayout
+  title="Contact — Face Shape Detector"
+  description="Email contact for bug reports, inaccurate results and licensing questions. There is no contact form, because this site has no server-side code."
+  jsonLd={jsonLd}
+>
+  <h1>Contact</h1>
+
+  <p>
+    Email: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+  </p>
+
+  <p>
+    There is no contact form here on purpose. A form needs a server to receive it, and this site has
+    no server-side code — that is exactly what makes the privacy claim structural rather than a
+    promise.
+  </p>
+
+  <h2>The most useful email you can send</h2>
+
+  <p>
+    <strong>Tell us when the result is wrong.</strong> The boundaries between the six shapes are not
+    yet validated at scale, so a mismatch report is genuinely valuable. Please include:
+  </p>
+
+  <ul>
+    <li>The shape you understand your face to be.</li>
+    <li>The shape the tool reported, and the runner-up it showed.</li>
+    <li>
+      Anything unusual about the photo: hair over the forehead, a beard, a close-up selfie, a tilted
+      head, strong side lighting.
+    </li>
+    <li>
+      Optionally, the four ratios from the result panel — they are the actual numbers the
+      classification ran on, and they make a report far easier to act on.
+    </li>
+  </ul>
+
+  <p>
+    <strong>Please do not send us your photo.</strong> We cannot use it, we have nowhere to store it,
+    and the whole point of this tool is that photos stay on your device. The description above is
+    enough.
+  </p>
+
+  <h2>Other reasons to write</h2>
+
+  <ul>
+    <li><strong>Bugs:</strong> browser and device, what you did, and what happened instead.</li>
+    <li>
+      <strong>Accessibility problems:</strong> anything that made the tool hard to use, especially if
+      you rely on a screen reader or keyboard navigation.
+    </li>
+    <li><strong>Licensing or reuse:</strong> say what you have in mind.</li>
+  </ul>
+
+  <h2>What to expect</h2>
+
+  <p>
+    This is a small project, so replies may take a few days. Bug reports and mismatch reports get
+    read first, because they improve the tool for everyone.
+  </p>
+
+  <h2>Questions</h2>
+
+  {
+    faqs.map((item) => (
+      <section>
+        <h3>{item.q}</h3>
+        <p>{item.a}</p>
+      </section>
+    ))
+  }
+
+  <p>
+    See also: <a href="/about/">about this site</a> · <a href="/how-it-works/">how the measurement
+      works</a> · <a href="/privacy/">privacy policy</a>
+  </p>
+</BaseLayout>

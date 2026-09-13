@@ -1,0 +1,12 @@
+{
+  "_说明": "把 labels.json 放在 regression/ 目录下（不是这个文件）。文件名必须和图片文件名完全一致。",
+  "_字段": {
+    "shape": "必填。你标注的正确答案：oval / round / square / heart / oblong / diamond",
+    "borderline": "可选。true 表示这张脸处在两个脸型之间，不计入准确率分母，单独统计",
+    "person": "可选。同一个人多张照片用同一个值，脚本会额外输出稳定性报告"
+  },
+  "示例_椭圆脸.jpg": { "shape": "oval" },
+  "示例_方脸.jpg": { "shape": "square", "person": "A" },
+  "示例_方脸_侧一点.jpg": { "shape": "square", "person": "A" },
+  "示例_边界.jpg": { "shape": "oval", "borderline": true }
+}

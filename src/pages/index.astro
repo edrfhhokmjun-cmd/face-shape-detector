@@ -1,0 +1,150 @@
+---
+import FaceShapeTool from '../components/FaceShapeTool.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { tools } from '../data/tools';
+import { shapes } from '../data/shapes';
+
+const home = tools[0];
+
+const faqs = [
+  {
+    q: 'Is my photo uploaded to a server?',
+    a: 'No. The image is decoded, measured and discarded entirely inside your browser. There is no upload endpoint in this tool, and the face landmark model is downloaded to your device rather than your photo being sent to it. You can verify this yourself in your browser’s Network tab: after the model has loaded once, analysing a photo makes no requests at all.',
+  },
+  {
+    q: 'How accurate is the face shape result?',
+    a: 'It is a geometric estimate, not a measurement by a professional. We locate facial landmarks and compute four ratios (face length to cheekbone width, forehead width to jaw width, cheekbone width to jaw width, and forehead width to cheekbone width), then pick the closest conventional category. Hair covering your forehead, a tilted head, a beard, or a wide-angle selfie can all shift the result. The measurements are the reliable part; the category is a convention, so always look at the runner-up too.',
+  },
+  {
+    q: 'What photo should I use?',
+    a: 'A front-facing photo, taken at arm’s length rather than up close, with your hair pulled back off your temples and forehead, a neutral expression, and the camera at eye height. That gives the cleanest landmark detection.',
+  },
+  {
+    q: 'Can I use this on my phone?',
+    a: 'Yes. The tool works in any modern mobile browser. The first analysis downloads the landmark model (a few megabytes), which is then cached, so later runs are fast and the tool keeps working offline.',
+  },
+  {
+    q: 'What are the six face shapes?',
+    a: 'Oval, round, square, heart, oblong and diamond. They are defined by two things: the ratio of face length to the widest point (usually the cheekbones), and where the face is widest relative to the forehead and jaw.',
+  },
+  {
+    q: 'Is face shape the same as attractiveness?',
+    a: 'No, and this tool deliberately does not score attractiveness. Face shape describes bone-structure proportions. It is useful for choosing hairstyles, glasses and beard shapes — not for judging how someone looks.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Face Shape Detector',
+    applicationCategory: 'UtilitiesApplication',
+    operatingSystem: 'Any modern web browser',
+    description: home.description,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  },
+];
+
+---
+<BaseLayout
+  title={home.title}
+  description={home.description}
+  jsonLd={jsonLd}
+>
+  <h1>{home.h1}: find your face shape without uploading your photo</h1>
+
+  <p>
+    This tool measures your face length, cheekbone width, forehead width and jaw width, and reports
+    how they compare — <strong>which part of your face is widest, and by how much</strong>. Those
+    four numbers are the reliable part of the result. It also points you to the
+    <strong>two closest</strong> of six conventional shapes — <strong>oval, round, square, heart,
+    oblong or diamond</strong> — as an entry point into the styling guides, rather than declaring one
+    answer, because the categories are conventions and many faces sit between two of them.
+  </p>
+
+  <p>
+    Every calculation happens in your browser. There is no upload step and no server that ever sees
+    your photo.
+  </p>
+
+  <FaceShapeTool />
+
+  <h2>How it works</h2>
+
+  <p>
+    The tool downloads a face landmark model to your device the first time you use it, locates 478
+    points on the face, and derives a handful of anatomically conventional measurements from them:
+    the trichion-to-menton face length, the bizygomatic (cheekbone) width, the forehead width and
+    the bigonial (jaw) width. Four ratios are computed from those numbers, and the ratios — not the
+    raw pixels — decide the shape.
+  </p>
+
+  <p>
+    Because the classification is ratio-based, it is independent of how close you are to the camera
+    and of the resolution of the photo. It is <em>not</em> independent of head angle, so the tool
+    checks your head pose first and tells you to retake the photo when it is too far off-axis.
+  </p>
+
+  <h2>The six face shapes</h2>
+
+  <p>
+    Each shape below has a full guide: the proportions that define it, how to verify it with a tape
+    measure, and which hairstyles and glasses frames work with it.
+  </p>
+
+  {
+    shapes.map((shape) => (
+      <section>
+        <h3>
+          <a href={`/shapes/${shape.slug}/`}>{shape.name} face shape</a>
+        </h3>
+        <p class="muted">{shape.rule}</p>
+        <p>{shape.summary}</p>
+      </section>
+    ))
+  }
+
+  <h2>Getting a usable photo</h2>
+
+  <ul>
+    <li>Face the camera straight on. A tilt of more than a few degrees distorts the width ratios.</li>
+    <li>Stand at arm’s length. Most phone front cameras are wide-angle and inflate apparent face width up close.</li>
+    <li>Pull your hair back off your temples and forehead — this is the single biggest source of error.</li>
+    <li>Neutral expression, chin level, even lighting without a strong side shadow.</li>
+    <li>Skip heavy beauty filters: they reshape the outline the tool is measuring.</li>
+  </ul>
+
+  <h2>What this tool cannot tell you</h2>
+
+  <div class="disclaimer">
+    <p>
+      Your hairline is not a facial landmark — the model estimates the top of your forehead, so if
+      your hair covers it, the face length will read short and you may be pushed towards round or
+      square. Beards thicken the visual jaw, glasses and hair can hide the cheekbones, and body fat
+      changes the soft tissue outline over time. At borderline ratios two shapes fit equally well,
+      which is why the runner-up is always shown.
+    </p>
+    <p>
+      This is a styling reference, not a medical, diagnostic or attractiveness assessment. Face shape
+      is a description of proportions, not a verdict.
+    </p>
+  </div>
+
+  <h2>FAQ</h2>
+
+  {faqs.map((item) => (
+    <section>
+      <h3>{item.q}</h3>
+      <p>{item.a}</p>
+    </section>
+  ))}
+</BaseLayout>
