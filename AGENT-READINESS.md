@@ -32,7 +32,7 @@
 |---|---|---|---|
 | 1 | Link 响应头（RFC 8288） | ✅ **已做** | 纯静态 `_headers`，零代价。只声明**能兑现**的关系：`service-doc`（方法页）、`privacy-policy`、`help`（contact）。**不声明** `api-catalog` / `service-desc` / `status`，因为没有 API |
 | 4 | robots.txt 的 Content Signals | ✅ **已做** | `Content-Signal: ai-train=no, search=yes, ai-input=yes`。**这是策略决定**，见下 |
-| 3 | Markdown for Agents | ⚠️ **被域名卡住** | Cloudflare 的**zone 级功能**（域名级开关，**不需要改代码**）。`*.pages.dev` 是 Cloudflare 自己的域名，用户无法在其上启用。**换真域名后**在 Cloudflare 面板开关即可 |
+| 3 | Markdown for Agents | ❌ **不做（两个门槛，其中一个是付费）** | Cloudflare 的 **zone 级**功能，官方要求：① **你自己拥有的 zone**（域名接进 Cloudflare）—— `*.pages.dev` 是 Cloudflare 自己的域名，无法配置；② **Pro / Business / Enterprise 套餐**（Free 计划没有此功能）。官方 "Availability and Pricing" 原文：*available to Pro, Business and Enterprise plans*。**为这一个勾选付 域名 + Pro 月费 不划算**；自己用 Pages Function 实现则要引入服务端代码、摧毁"无服务端代码"这个结构优势，而且做得比官方差（缺 `x-markdown-tokens` / frontmatter 抽取 / JSON-LD 保留）。**换真域名 + 升 Pro 之后再回来考虑。** |
 | 2 | DNS-AID + DNSSEC | ❌ **被域名卡住** | 需要添加 `_index._agents.<域名>` 之类的 SVCB/HTTPS 记录并签 DNSSEC。**无法给 `pages.dev` 添加 DNS 记录**。换真域名后才谈 |
 | 5 | API catalog（RFC 9727） | ❌ **不适用** | 本站**没有 API**。发布空的/假的 catalog = 造假 |
 | 6 | OAuth / OIDC discovery | ❌ **不适用** | 没有受保护 API、没有认证。发布假的 issuer/token_endpoint 会误导 agent |
@@ -81,10 +81,15 @@ npm run verify:live
 
 ---
 
-## 换真域名后可以补的（届时都不需要改代码）
+## 换真域名后可以补的
 
-| 项目 | 怎么做 |
-|---|---|
-| Markdown for Agents | Cloudflare 面板 → 该域名的 zone → 开启（可限定子域/路径） |
-| DNS-AID + DNSSEC | 在 Cloudflare DNS 里加 SVCB/HTTPS 记录 + 开启 DNSSEC |
-| 两项都做完后再重扫 | 分数会明显上升，且**没有一条是造假的** |
+| 项目 | 怎么做 | 成本 |
+|---|---|---|
+| DNS-AID + DNSSEC | 在 Cloudflare DNS 里加 SVCB/HTTPS 记录 + 开启 DNSSEC | 域名费用（Free 计划即可） |
+| Markdown for Agents | 面板 → **AI Crawl Control** → 开启（可限定子域/路径） | 域名费用 **+ Pro 套餐月费**（Free 计划无此功能，官方：仅 Pro/Business/Enterprise） |
+
+⚠️ **注意最后一项需要付费套餐** —— 这一条曾经在本文件里被写成"换真域名后开关一下即可"，
+漏了套餐要求。**记录在此，避免以后有人以为只差一个域名。**
+
+两项都做完后再重扫，分数会上升，且**没有一条是造假的**。
+但请先问一句：为了扫描器上的几个勾选，是否值得域名 + Pro 的月费？
