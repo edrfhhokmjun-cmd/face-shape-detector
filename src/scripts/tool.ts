@@ -195,8 +195,10 @@ if (root) {
       lastResult = null;
       paint();
 
-      // 首次会下载 wasm + 约 3MB 模型。没有下载进度 API，只能给文案。
-      setStatus('Loading the landmark model (about 3 MB the first time, cached afterwards)…', 'busy');
+      // 首次会下载 wasm 运行时（压缩后约 3 MB）+ 模型（约 3.6 MB）≈ 7 MB。
+      // 这个数字是**实测**的（.tools/measure-analysis.mjs），不是估的 ——
+      // 之前这里写「约 3 MB」，比实际少一半以上，慢网用户会以为卡死了。
+      setStatus('Loading the model and runtime (about 7 MB the first time, cached afterwards)…', 'busy');
       // 让浏览器有机会把上面这行文字画出来，再进入可能耗时数秒的推理
       await new Promise((r) => requestAnimationFrame(() => r(null)));
 

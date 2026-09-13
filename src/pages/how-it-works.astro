@@ -57,7 +57,10 @@ const jsonLdFaq = {
   <h2>1. Find the landmarks</h2>
 
   <p>
-    The first time you analyse a photo, your browser downloads a face landmark model (about 3 MB).
+    The first time you analyse a photo, your browser downloads two things: a face landmark model
+    (about 3.6 MB) and the runtime that executes it (about 3 MB, compressed). That is roughly
+    <strong>7 MB in total</strong>, on the first analysis only — afterwards both come from cache and
+    the tool keeps working offline.
     It runs locally and returns 478 points on the face — eyes, brows, nose, lips, jaw contour and
     forehead. Everything after this step is arithmetic on those points.
   </p>

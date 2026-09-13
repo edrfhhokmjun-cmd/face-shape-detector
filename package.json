@@ -13,6 +13,7 @@
     "preflight": "node scripts/preflight.mjs",
     "preflight:strict": "node scripts/preflight.mjs --strict",
     "verify:live": "node scripts/verify-live.mjs",
+    "measure:analysis": "node scripts/measure-analysis.mjs",
     "batch": "node scripts/batch-analyze.mjs",
     "batch:anchors": "node scripts/batch-analyze.mjs --compare-anchors",
     "import:photos": "node scripts/import-photos.mjs",

@@ -41,8 +41,8 @@ async function createLandmarker(delegate: 'GPU' | 'CPU'): Promise<FaceLandmarker
 }
 
 /**
- * 惰性单例：只有用户真的选了图片才会触发下载（wasm + 约 3MB 模型）。
- * 首屏绝不能碰它 —— 否则 LCP 会被 3MB 的模型拖死。
+ * 惰性单例：只有用户真的选了图片才会触发下载（wasm 运行时压缩后约 3 MB + 模型约 3.6 MB ≈ 7 MB）。
+ * 首屏绝不能碰它 —— 否则 LCP 会被这 7 MB 拖死。
  *
  * GPU delegate 失败时回退 CPU：老浏览器 / 无 WebGL2 的环境会走到这条路径，
  * 比直接报错给用户看要好。
