@@ -66,15 +66,25 @@ const ROUTES = [
   '/contact/',
   '/privacy/',
 ];
+// 收集每页正文，供「无中文残留」断言使用 —— 检查**全部页面**，不只首页。
+// HTML 注释也会随页面发给访客，所以中文注释同样算残留（这个断言抓到过一次真事：
+// BaseLayout 里一段中文 HTML 注释被发到了线上）。
+const hanPages = [];
 for (const route of ROUTES) {
   try {
     const res = await get(route);
     const body = await res.text();
     record(`GET ${route}`, res.ok, `HTTP ${res.status}, ${body.length} 字节`);
+    if (/[\u4e00-\u9fff]/.test(body)) hanPages.push(route);
   } catch (err) {
     record(`GET ${route}`, false, err.message);
   }
 }
+record(
+  '所有页面无中文残留',
+  hanPages.length === 0,
+  hanPages.length ? `发现中文: ${hanPages.join(', ')}` : `${ROUTES.length} 个页面零中文`,
+);
 
 // ── 2. 开发页不得在线 ──────────────────────────────────────────────────────
 {
@@ -82,7 +92,7 @@ for (const route of ROUTES) {
   record('/debug/ 应为 404', res.status === 404, `HTTP ${res.status}`);
 }
 
-// ── 3. canonical / og / 无中文 ────────────────────────────────────────────
+// ── 3. canonical / og ─────────────────────────────────────────────────────
 {
   const html = await (await get('/')).text();
   const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1] ?? '(无)';
@@ -91,7 +101,6 @@ for (const route of ROUTES) {
   record('canonical 正确', canonical === `${base}/`, canonical);
   record('og:image 正确', ogImage.startsWith(base), ogImage);
   record('title 存在', title.length > 10, title);
-  record('首页无中文残留', !/[\u4e00-\u9fff]/.test(html), /[\u4e00-\u9fff]/.test(html) ? '发现中文' : '零中文');
   record('首屏不引用模型文件', !html.includes('face_landmarker.task'));
 }
 

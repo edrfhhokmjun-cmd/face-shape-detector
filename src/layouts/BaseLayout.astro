@@ -33,10 +33,12 @@ const ogImage = hasRealDomain ? new URL('/og.png', siteUrl).href : null;
     <meta name="generator" content={Astro.generator} />
 
     <!--
-      构建身份，供 scripts/verify-live.mjs 检测「部署没发生」这种静默失败：
-      Cloudflare 的构建可能失败而线上继续服务旧版本。verify:live 把这个值和
-      本地 origin/main 比对，不一致就报「部署是旧的」。
-      对访客无副作用，也只是 7 个字符。
+      Build identity, read by scripts/verify-live.mjs to detect a silent deploy failure
+      (a Cloudflare build can fail while the previous version keeps serving). The rationale
+      lives in src/lib/build-info.mjs.
+      NOTE: HTML comments are shipped to visitors, so keep them in English -- the Chinese
+      notes elsewhere in this repo are for the developer, not for public output. This file
+      is covered by the "no Han characters in any page" assertion in verify-live.
     -->
     <meta name="build-commit" content={COMMIT_SHA} />
     <meta name="build-env" content={BUILD_ENV} />
